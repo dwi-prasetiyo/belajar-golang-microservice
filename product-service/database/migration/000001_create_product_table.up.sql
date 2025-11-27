@@ -1,0 +1,14 @@
+CREATE TABLE products (
+	id SERIAL PRIMARY KEY,
+	name VARCHAR(255) NOT NULL,
+	sku VARCHAR(255) NOT NULL,
+	image_id VARCHAR(255) NOT NULL,
+	image VARCHAR(500) NOT NULL,
+	price INT NOT NULL,
+	stock INT NOT NULL,
+	length FLOAT NOT NULL,
+	width FLOAT NOT NULL,
+	height FLOAT NOT NULL,
+	weight FLOAT NOT NULL,
+	description TEXT NOT NULL
+);

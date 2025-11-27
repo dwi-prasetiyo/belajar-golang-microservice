@@ -1,0 +1,9 @@
+CREATE TABLE IF NOT EXISTS user_block_logs (
+    id SERIAL PRIMARY KEY,
+    user_id VARCHAR(21) NOT NULL,
+    reason TEXT NOT NULL,
+    blocked_at TIMESTAMP WITH TIME ZONE DEFAULT CURRENT_TIMESTAMP,
+    unblocked_at TIMESTAMP WITH TIME ZONE,
+    is_active BOOLEAN NOT NULL DEFAULT TRUE,
+    FOREIGN KEY (user_id) REFERENCES users(id)
+);
