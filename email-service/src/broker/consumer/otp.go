@@ -5,15 +5,10 @@ import (
 	"email-service/src/common/log"
 	"encoding/json"
 	"time"
-
-	"github.com/rabbitmq/amqp091-go"
 )
 
 func (c *RabbitMQ) Otp() {
 	log.Logger.Info("starting otp consumer")
-
-	closeChann := c.conn.NotifyClose(make(chan *amqp091.Error, 1))
-	go c.checkCloseConnection(closeChann)
 
 	otpConsumer, err := c.otpChann.ConsumeWithContext(c.ctx, "otp", "otp-consumer", false, false, false, false, nil)
 	if err != nil {

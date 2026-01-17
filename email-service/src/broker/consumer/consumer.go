@@ -25,13 +25,18 @@ func NewRabbitMQ(ctx context.Context, f *factory.Factory) *RabbitMQ {
 	conn := connect()
 	otpChann := setupChannel(conn, "user", "otp", "otp")
 
-	return &RabbitMQ{
+	r := &RabbitMQ{
 		conn:                 conn,
 		otpChann:             otpChann,
 		ctx:                  ctx,
 		service:              service.NewRabbitMQ(f),
 		rabbitMQLogPublisher: f.RabbitMQLogPublisher,
 	}
+
+	closeChann := r.conn.NotifyClose(make(chan *amqp091.Error, 1))
+	go r.checkCloseConnection(closeChann)
+
+	return r
 }
 
 func (c *RabbitMQ) checkCloseConnection(closeChann chan *amqp091.Error) {
@@ -49,6 +54,9 @@ func (c *RabbitMQ) reconnect() {
 
 	c.conn = connect()
 	c.otpChann = setupChannel(c.conn, "user", "otp", "otp")
+
+	closeChann := c.conn.NotifyClose(make(chan *amqp091.Error, 1))
+	go c.checkCloseConnection(closeChann)
 
 	go c.Otp()
 

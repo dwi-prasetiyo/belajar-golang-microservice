@@ -22,12 +22,17 @@ func NewRabbitMQ(ctx context.Context, f *factory.Factory) *RabbitMQ {
 	conn := connect()
 	midtransTxNotifChann := setupChannel(conn, "notification", "midtrans-tx", "midtrans-tx")
 
-	return &RabbitMQ{
+	r := &RabbitMQ{
 		conn:                 conn,
 		midtransTxNotifChann: midtransTxNotifChann,
 		ctx:                  ctx,
 		service:              service.NewRabbitMQ(f),
 	}
+
+	closeChann := r.conn.NotifyClose(make(chan *amqp091.Error, 1))
+	go r.checkCloseConnection(closeChann)
+
+	return r
 }
 
 func (c *RabbitMQ) checkCloseConnection(closeChann chan *amqp091.Error) {
@@ -45,6 +50,9 @@ func (c *RabbitMQ) reconnect() {
 
 	c.conn = connect()
 	c.midtransTxNotifChann = setupChannel(c.conn, "notification", "midtrans-tx", "midtrans-tx")
+
+	closeChann := c.conn.NotifyClose(make(chan *amqp091.Error, 1))
+	go c.checkCloseConnection(closeChann)
 
 	go c.MidtransTx()
 
